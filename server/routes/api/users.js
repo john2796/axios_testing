@@ -13,8 +13,7 @@ const User = require("../../models/User");
 // @access Public
 router.get("/test", (req, res) => res.json({ msg: "users Works" }));
 
-// User Registation
-
+// User Registationas
 // @route  GET api/users/register
 // @desc   Register user
 // @access Public
@@ -47,6 +46,33 @@ router.post(`/register`, (req, res) => {
         });
       });
     }
+  });
+});
+
+// Email & Password Login
+// @route  GET api/users/Login
+// @desc   Login User / Returning JWT Token
+// @access Public
+router.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Find User by Email
+  User.findOne({ email }).then(user => {
+    // Chech for user
+    if (!user) {
+      // 404 means not found
+      return res.status(404).json({ email: "User not Found" });
+    }
+    // Check Password since password is hashed we need to use bycrpty to compare if it's true
+    bcrypt.compare(password, user.password).then(isMatch => {
+      if (isMatch) {
+        // Create the Jason Web Token (JWT)
+        res.json({ msg: "Success" });
+      } else {
+        return res.status(400).json({ password: "Password incorrect" });
+      }
+    });
   });
 });
 
